@@ -1,8 +1,40 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{% load staticfiles %}
+    {% load staticfiles %}
+    <div class="container">
+        <div class="row">
+            <div class="container col-sm-4 col-md-4 col-lg-4 float-right">
+                <img src="{% static 'pic.png' %}" alt="Img not found"/>
+            </div>
 
-    <img src="{% static 'pic.png' %}" alt="Img not found"/>
+            <div class="container col-sm-8 col-md-8 col-lg-8">
 
+                <h1 class="offset-2">Madison Square Garden</h1>
+                <br/>
+                <br/>
+                <br/>
+                <p class="">I’m blaming Ducky for this. She came up with an idea for a game thread, that
+                    involves writing scenes from the middle of book. A scene can be pages long, however. It seemed that
+                    something shorter might be just the thing.
+
+                    In this exercise, the idea is to write a paragraph that would be a random passage from a story. An
+                    effective paragraph is one that has unity (it isn’t a hodgepodge of things), focus (everything in
+                    the paragraph stacks up to the whatever-it-is the paragraph is about), and coherence (the content
+                    follows smoothly). For this exercise, the paragraph should be quick to read--say, not be more than
+                    100 words long.
+
+                    A paragraph needn’t be several sentences long, but might be only a sentence or two, or a single line
+                    of dialogue.
+
+                    Or it could be a snippet of dialogue with narration:
+
+                    She made an attempt to straighten her tawny hair. Her voice quavered with emotion. “You must be a
+                    very lonely man, Judge Seagrave.” Then she turned a gaze on him that might have ignited a
+                    rain-sodden haystack. “And I’m a lonely woman.”
+
+                    It might be merely descriptive:</p>
+            </div>
+        </div>
+    </div>
 {% endblock %}
