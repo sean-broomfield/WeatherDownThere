@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+
     {% load staticfiles %}
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -32,9 +33,24 @@
             <img src="{% static 'icon.png' %}" alt="" width="40px" height="30px"/>
             Weather Down There
         </a>
-        <form class="form-inline">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        <form class="col-4" action="{% url 'home' %}" enctype="multipart/form-data" method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <select class="custom-select rounded-left"
+                            style="width: 100px; border-top-right-radius: 0; border-bottom-right-radius: 0;"
+                            name="options">
+                        <option selected value="1">Artist</option>
+                        <option value="2">Venue</option>
+                    </select>
+                </div>
+                <input class="form-control" id="search" type="search" name="searchQuery"
+                       placeholder="Search"
+                       aria-label="Search">
+                <div class="input-group-append">
+                    <input class="btn btn-outline-secondary" value="Go" type="submit"/>
+                </div>
+            </div>
         </form>
     </div>
 </nav>
@@ -42,5 +58,12 @@
 <br/>
 {% block content %}
 {% endblock %}
+<br/>
+<br/>
+<div class="container">
+    <footer class="page-footer font-small blue" style="position: fixed; bottom: 0;">
+        <div class="footer-copyright text-center py-3">© 2018 Copyright: SB</div>
+    </footer>
+</div>
 </body>
 </html>
