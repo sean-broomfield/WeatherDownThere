@@ -54,6 +54,15 @@
         </form>
     </div>
 </nav>
+{% if error %}
+    <br/>
+    <br/>
+    <div class="container offset-5">
+        <div class="alert alert-danger rounded-corners text-center" role="alert" style="width: 300px">
+            {{ error }}
+        </div>
+    </div>
+{% endif %}
 <br/>
 <br/>
 {% block content %}
