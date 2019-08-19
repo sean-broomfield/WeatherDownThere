@@ -2,5 +2,64 @@
 {% load staticfiles %}
 
 {% block content %}
-
+    <div class="container">
+        <div class="jumbotron">
+            <div class="container">
+                <h1 class="display-4">Weather for Events!</h1>
+                <p class="lead">Ever wanted to find out the weather would be like for any concert you were going to?</p>
+            </div>
+        </div>
+    </div>
+    <div class="container center">
+        <div class="alert alert-primary rounded-corners text-center" role="alert">
+            Search Results for '{{ searchQuery }}'
+        </div>
+    </div>
+    <div class="container offset-2">
+        <div class="card-deck mt-4">
+            {% for result in searchResults %}
+                <div class="card col-auto mb-3" style="min-width: 18rem; max-width: 18rem;">
+                    <div class="row">
+                        <img src="{{ result.images.0.url }}"
+                             onerror="this.onerror=null;this.src='{% static 'pic.png' %}';" class="card-img-top"
+                             height="120px"
+                             alt="No Image Available">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ result.name }}</h5>
+                        <p class="card-text">This card has supporting text below as a natural lead-in to additional
+                            content.</p>
+                        <br/> <br/>
+                        <div class="card-footer text-muted" style="position: absolute; bottom: 0; left:0; width:100%;">
+                            Car
+                        </div>
+                    </div>
+                </div>
+                {% if forloop.counter|divisibleby:3 %}
+                    </div>
+                    <div class="card-deck">
+                {% endif %}
+            {% endfor %}
+            </div>
+    </div>
+    <div class="container">
+        <nav aria-label="..." class="offset-5">
+            <ul class="pagination">
+                <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item active" aria-current="page">
+      <span class="page-link">
+        2
+        <span class="sr-only">(current)</span>
+      </span>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 {% endblock %}

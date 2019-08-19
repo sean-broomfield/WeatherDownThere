@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 import requests
 from weather import api
-from weather.apiurls import baseUrls
+from weather.helper import baseUrls
+from weather.models import Artist, Event, Venue
 
 
 # Returns all music events at the venue id
@@ -14,13 +15,13 @@ from weather.apiurls import baseUrls
 # For venue search, display list of venues and allow user to click one which will then take them to a different page
 # to see all the events and weather?
 
-#ARTIST
+# ARTIST
 # if 0 elements
-    # pass error and redirect home.
+# pass error and redirect home.
 # if 1 element
-    # open one element and go to details page
+# open one element and go to details page
 # if more than 1 element
-    # display search results and allow the user to select one.
+# display search results and allow the user to select one.
 
 def home(request):
     # if 1 and get text then search, then redirect to search results page
@@ -32,10 +33,31 @@ def home(request):
                              f"&apikey={api.tmaccess()}").json()
             if r['page']['totalElements'] == 0:
                 return render(request, 'weather/home.html', {'error': 'No search results found!'})
+            else:
+                return render(request, 'weather/detail.html')
+            ######################################################
         elif request.POST['options'] == "2" and request.POST['searchQuery']:
             r = requests.get(f"{baseUrls.TMVEN}"
                              f"&keyword={request.POST['searchQuery']}"
-                             f"&apikey={api.tmaccess()}")
+                             f"&apikey={api.tmaccess()}").json()
+            if r['page']['totalElements'] == 0:
+                print("0")
+                return render(request, 'weather/home.html', {'error': 'No search results found!'})
+            #######################################################
+            elif r['page']['totalElements'] == 1:
+                print("1")
+                result = r['_embedded']['venues'][0]
+                obj, created = Venue.objects.get_or_create(
+                    VenueName=result['name'],
+                    VenueId=result['id'],
+                    defaults={'latitude': float(result['location']['latitude']),
+                              'longitude': float(result['location']['longitude'])}
+                )
+                return render(request, 'weather/detail.html', {'venue': Venue.objects.get(VenueId=obj.VenueId)})
+            else:
+                print("multi")
+                return render(request, 'weather/search.html',
+                              {'searchResults': r['_embedded']['venues'], 'searchQuery': request.POST['searchQuery']})
     return render(request, 'weather/home.html')
 
 
