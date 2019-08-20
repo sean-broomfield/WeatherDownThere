@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% load staticfiles %}
+    <div class="container">
+        <div class="row">
+            <div class="container col-sm-4 col-md-4 col-lg-4 float-right">
+                <img src="{% static 'pic.png' %}" alt="Img not found"/>
+            </div>
+            <h2>DETAIL 2</h2>
+            <div class="container col-sm-8 col-md-8 col-lg-8">
+                <h1>{{ artist.artistId }}</h1>
+            </div>
+            {% for event in events %}
+                <h1>{{ event.venueLoc }} on {{ event.date }}</h1>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -18,21 +18,24 @@
     <div class="container offset-2">
         <div class="card-deck mt-4">
             {% for result in searchResults %}
-                <div class="card col-auto mb-3" style="min-width: 18rem; max-width: 18rem;">
+                <div class="card border-dark col-auto mb-3" style="min-width: 18rem; max-width: 18rem;">
                     <div class="row">
                         <img src="{{ result.images.0.url }}"
-                             onerror="this.onerror=null;this.src='{% static 'pic.png' %}';" class="card-img-top"
-                             height="120px"
+                             onerror="this.onerror=null;this.src='{% static 'nim.jpg' %}';" class="card-img-top"
+                             height="200px"
                              alt="No Image Available">
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">{{ result.name }}</h5>
-                        <p class="card-text">This card has supporting text below as a natural lead-in to additional
-                            content.</p>
-                        <br/> <br/>
-                        <div class="card-footer text-muted" style="position: absolute; bottom: 0; left:0; width:100%;">
-                            Car
-                        </div>
+                        <h5 class="card-title text-center">{{ result.name }}</h5>
+                        {% if searchType == 1 %}
+                            <br/> <br/>
+                            <a href="{% url 'detail2' artId %}">
+                                <div class="card-footer text-muted text-center"
+                                     style="position: absolute; bottom: 0; left:0; width:100%;">
+                                    {{ result.classifications.0.genre.name }}
+                                </div>
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
                 {% if forloop.counter|divisibleby:3 %}
@@ -42,24 +45,25 @@
             {% endfor %}
             </div>
     </div>
-    <div class="container">
-        <nav aria-label="..." class="offset-5">
-            <ul class="pagination">
-                <li class="page-item disabled">
-                    <span class="page-link">Previous</span>
-                </li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item active" aria-current="page">
-      <span class="page-link">
-        2
-        <span class="sr-only">(current)</span>
-      </span>
-                </li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#">Next</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
+    <br/><br/>
+    {#    <div class="container">#}
+    {#        <nav aria-label="..." class="offset-5">#}
+    {#            <ul class="pagination">#}
+    {#                <li class="page-item disabled">#}
+    {#                    <span class="page-link">Previous</span>#}
+    {#                </li>#}
+    {#                <li class="page-item"><a class="page-link" href="#">1</a></li>#}
+    {#                <li class="page-item active" aria-current="page">#}
+    {#      <span class="page-link">#}
+    {#        2#}
+    {#        <span class="sr-only">(current)</span>#}
+    {#      </span>#}
+    {#                </li>#}
+    {#                <li class="page-item"><a class="page-link" href="#">3</a></li>#}
+    {#                <li class="page-item">#}
+    {#                    <a class="page-link" href="#">Next</a>#}
+    {#                </li>#}
+    {#            </ul>#}
+    {#        </nav>#}
+    {#    </div>#}
 {% endblock %}

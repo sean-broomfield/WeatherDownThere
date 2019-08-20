@@ -29,12 +29,25 @@ def home(request):
         if request.POST['options'] == "1" and request.POST['searchQuery']:
             r = requests.get(f"{baseUrls.TMART}"
                              f"&keyword={request.POST['searchQuery']}"
-                             f"&sort=name,date,asc"
                              f"&apikey={api.tmaccess()}").json()
+            # ZERO RESULT
             if r['page']['totalElements'] == 0:
                 return render(request, 'weather/home.html', {'error': 'No search results found!'})
+            # ONE RESULT
+            elif r['page']['totalElements'] == 1:
+                result = r['_embedded']['attractions'][0]
+                obj, created = Artist.objects.get_or_create(
+                    name=result['name'],
+                    artistId=result['id']
+                )
+                return render(request, 'weather/detail2.html',
+                              {'artist': Artist.objects.get(artistId=obj.artistId), 'artId': obj.artistId})
+            # MULTIPLE RESULTS
             else:
-                return render(request, 'weather/detail.html')
+                return render(request, 'weather/search.html',
+                              {'searchResults': r['_embedded']['attractions'],
+                               'searchType': 1,
+                               'searchQuery': request.POST['searchQuery']})
             ######################################################
         elif request.POST['options'] == "2" and request.POST['searchQuery']:
             r = requests.get(f"{baseUrls.TMVEN}"
@@ -45,7 +58,6 @@ def home(request):
                 return render(request, 'weather/home.html', {'error': 'No search results found!'})
             #######################################################
             elif r['page']['totalElements'] == 1:
-                print("1")
                 result = r['_embedded']['venues'][0]
                 obj, created = Venue.objects.get_or_create(
                     VenueName=result['name'],
@@ -55,7 +67,6 @@ def home(request):
                 )
                 return render(request, 'weather/detail.html', {'venue': Venue.objects.get(VenueId=obj.VenueId)})
             else:
-                print("multi")
                 return render(request, 'weather/search.html',
                               {'searchResults': r['_embedded']['venues'], 'searchQuery': request.POST['searchQuery']})
     return render(request, 'weather/home.html')
@@ -63,6 +74,13 @@ def home(request):
 
 def search(request):
     return render(request, 'weather/search.html')
+
+
+def detail2(request, artist_id):
+    print(Artist.objects.get(artistId=artist_id).name)
+    return render(request, 'weather/detail2.html',
+                  {'artist': Artist.objects.get(artistId=artist_id),
+                   'events': Event.objects.filter(performer__artistId__exact=artist_id)})
 
 
 def detail(request):

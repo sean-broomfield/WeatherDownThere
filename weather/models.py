@@ -5,6 +5,8 @@ from django.utils import timezone
 # Create your models here.
 class Artist(models.Model):
     name = models.CharField(max_length=255, default='')
+    artistId = models.CharField(max_length=255, default='')
+    genre = models.CharField(max_length=255, default='')
 
     def __str__(self):
         return self.name
