@@ -11,20 +11,7 @@ from weather.models import Artist, Event, Venue
 # Returns all music events where tyler is a  keyword at the venue id and sorts by date
 # https://app.ticketmaster.com/discovery/v2/events.json?classificationName=music&keyword=tyler&sort=date,asc&venueId=KovZpZA7AAEA
 
-# For artist search, if the list > 0 then return events sorted by name, date, with location embedded in view.
-# For venue search, display list of venues and allow user to click one which will then take them to a different page
-# to see all the events and weather?
-
-# ARTIST
-# if 0 elements
-# pass error and redirect home.
-# if 1 element
-# open one element and go to details page
-# if more than 1 element
-# display search results and allow the user to select one.
-
 def home(request):
-    # if 1 and get text then search, then redirect to search results page
     if request.method == 'POST':
         if request.POST['options'] == "1" and request.POST['searchQuery']:
             r = requests.get(f"{baseUrls.TMART}"
@@ -38,15 +25,16 @@ def home(request):
                 result = r['_embedded']['attractions'][0]
                 obj, created = Artist.objects.get_or_create(
                     name=result['name'],
-                    artistId=result['id']
+                    artistId=result['id'],
+                    genre=result['classifications'][0]['genre']['name'],
+                    image=result['images'][0]['url']
                 )
-                return render(request, 'weather/detail2.html',
-                              {'artist': Artist.objects.get(artistId=obj.artistId), 'artId': obj.artistId})
+                return artistdetails(request, obj.artistId)
             # MULTIPLE RESULTS
             else:
+                print("Multi")
                 return render(request, 'weather/search.html',
                               {'searchResults': r['_embedded']['attractions'],
-                               'searchType': 1,
                                'searchQuery': request.POST['searchQuery']})
             ######################################################
         elif request.POST['options'] == "2" and request.POST['searchQuery']:
@@ -76,9 +64,8 @@ def search(request):
     return render(request, 'weather/search.html')
 
 
-def detail2(request, artist_id):
-    print(Artist.objects.get(artistId=artist_id).name)
-    return render(request, 'weather/detail2.html',
+def artistdetails(request, artist_id):
+    return render(request, 'weather/artistdetails.html',
                   {'artist': Artist.objects.get(artistId=artist_id),
                    'events': Event.objects.filter(performer__artistId__exact=artist_id)})
 
