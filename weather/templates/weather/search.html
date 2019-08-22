@@ -27,14 +27,26 @@
                     </div>
                     <div class="card-body">
                         <h5 class="card-title text-center">{{ result.name }}</h5>
-                        {% if searchType == 1 %}
+                        <div class="row justify-content-center">
+                            <p class="text-muted">
+                                {{ result.address.line1 }}
+                            </p>
+                        </div>
+                        <br/> <br/>
+                        {% if searchType == "2" %}
+                            <a href="{% url 'venuedetails' result.id %}" class="stretched-link"></a>
+                            <div class="card-footer text-muted text-center"
+                                 style="position: absolute; bottom: 0; left:0; width:100%;">
+                                {{ result.city.name }}, {{ result.state.name }}
+                            </div>
+                        {% endif %}
+                        {% if searchType == "1" %}
                             <br/> <br/>
-                            <a href="{% url 'detail2' artId %}">
-                                <div class="card-footer text-muted text-center"
-                                     style="position: absolute; bottom: 0; left:0; width:100%;">
-                                    {{ result.classifications.0.genre.name }}
-                                </div>
-                            </a>
+                            <a href="{% url 'artistdetails' result.id %}" class="stretched-link"></a>
+                            <div class="card-footer text-muted text-center"
+                                 style="position: absolute; bottom: 0; left:0; width:100%;">
+                                {{ result.classifications.0.genre.name }}
+                            </div>
                         {% endif %}
                     </div>
                 </div>

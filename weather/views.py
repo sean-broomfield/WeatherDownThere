@@ -1,4 +1,5 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
+from django.utils import timezone
 import requests
 from weather import api
 from weather.helper import baseUrls
@@ -17,10 +18,8 @@ def home(request):
             r = requests.get(f"{baseUrls.TMART}"
                              f"&keyword={request.POST['searchQuery']}"
                              f"&apikey={api.tmaccess()}").json()
-            # ZERO RESULT
             if r['page']['totalElements'] == 0:
                 return render(request, 'weather/home.html', {'error': 'No search results found!'})
-            # ONE RESULT
             elif r['page']['totalElements'] == 1:
                 result = r['_embedded']['attractions'][0]
                 obj, created = Artist.objects.get_or_create(
@@ -30,14 +29,14 @@ def home(request):
                     image=result['images'][0]['url']
                 )
                 return artistdetails(request, obj.artistId)
-            # MULTIPLE RESULTS
             else:
-                print("Multi")
                 return render(request, 'weather/search.html',
                               {'searchResults': r['_embedded']['attractions'],
+                               'searchType': request.POST['options'],
                                'searchQuery': request.POST['searchQuery']})
             ######################################################
         elif request.POST['options'] == "2" and request.POST['searchQuery']:
+            print(request.POST['options'])
             r = requests.get(f"{baseUrls.TMVEN}"
                              f"&keyword={request.POST['searchQuery']}"
                              f"&apikey={api.tmaccess()}").json()
@@ -50,13 +49,19 @@ def home(request):
                 obj, created = Venue.objects.get_or_create(
                     VenueName=result['name'],
                     VenueId=result['id'],
-                    defaults={'latitude': float(result['location']['latitude']),
-                              'longitude': float(result['location']['longitude'])}
+                    city=result['city']['name'],
+                    state=result['state']['name'],
+                    address=result['address']['line1'],
+                    image=result['images'][0]['url'],
+                    latitude=result['location']['latitude'],
+                    longitude=result['location']['longitude']
                 )
-                return render(request, 'weather/detail.html', {'venue': Venue.objects.get(VenueId=obj.VenueId)})
+                return render(request, 'weather/venuedetails.html', {'venue': Venue.objects.get(VenueId=obj.VenueId)})
             else:
                 return render(request, 'weather/search.html',
-                              {'searchResults': r['_embedded']['venues'], 'searchQuery': request.POST['searchQuery']})
+                              {'searchResults': r['_embedded']['venues'],
+                               'searchType': request.POST['options'],
+                               'searchQuery': request.POST['searchQuery']})
     return render(request, 'weather/home.html')
 
 
@@ -65,10 +70,51 @@ def search(request):
 
 
 def artistdetails(request, artist_id):
+    if request.method == "POST":
+        # get date, check db for those after date, api request for
+        time = timezone.now()
+        
+    if Artist.objects.filter(artistId=artist_id).exists():
+        return render(request, 'weather/artistdetails.html',
+                      {'artist': Artist.objects.get(artistId=artist_id),
+                       'events': Event.objects.filter(performer__artistId__exact=artist_id)})
+    r = requests.get(f"{baseUrls.TMART}"
+                     f"&id={artist_id}"
+                     f"&apikey={api.tmaccess()}").json()
+    result = r['_embedded']['attractions'][0]
+    newArtist = Artist.objects.create(
+        name=result['name'],
+        artistId=result['id'],
+        genre=result['classifications'][0]['genre']['name'],
+        image=result['images'][0]['url']
+    )
     return render(request, 'weather/artistdetails.html',
-                  {'artist': Artist.objects.get(artistId=artist_id),
-                   'events': Event.objects.filter(performer__artistId__exact=artist_id)})
+                  {'artist': newArtist, 'events': Event.objects.filter(performer__artistId__exact=artist_id)})
 
 
-def detail(request):
-    return render(request, 'weather/detail.html')
+def eventdetails(request, event_id):
+    event = Event.objects.get(eventId=event_id)
+    return render(request, 'weather/eventdetails.html', {'event': event})
+
+
+def venuedetails(request, venue_id):
+    if Venue.objects.filter(VenueId__exact=venue_id).exists():
+        return render(request, 'weather/venuedetails.html',
+                      {'events': Event.objects.filter(venueId=venue_id),
+                       'venue': Venue.objects.get(VenueId__exact=venue_id)})
+    r = requests.get(f"{baseUrls.TMVEN}"
+                     f"&id={venue_id}"
+                     f"&apikey={api.tmaccess()}").json()
+    result = r['_embedded']['venues'][0]
+    newVenue = Venue.objects.create(
+        VenueName=result['name'],
+        VenueId=result['id'],
+        city=result['city']['name'],
+        state=result['state']['name'],
+        address=result['address']['line1'],
+        image=result['images'][0]['url'],
+        latitude=result['location']['latitude'],
+        longitude=result['location']['longitude']
+    )
+    return render(request, 'weather/venuedetails.html', {'events': Event.objects.filter(venueId__exact=venue_id),
+                                                         'venue': newVenue})

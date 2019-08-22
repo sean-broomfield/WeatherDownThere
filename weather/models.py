@@ -16,7 +16,10 @@ class Artist(models.Model):
 class Event(models.Model):
     performer = models.ForeignKey(Artist, on_delete=models.CASCADE)
     venueLoc = models.CharField(max_length=255)
+    venueId = models.CharField(max_length=255, default='')
+    eventId = models.CharField(max_length=255, default='')
     date = models.DateField(default=timezone.now())
+    url = models.URLField(default='')
 
     def __str__(self):
         return f"{self.performer} @ {self.venueLoc}"
@@ -24,7 +27,7 @@ class Event(models.Model):
 
 class Venue(models.Model):
     VenueName = models.CharField(max_length=255)
-    VenueId = models.CharField(max_length=255)
+    VenueId = models.CharField(max_length=255, unique=True)
     Event = models.ManyToManyField(Event)
     city = models.CharField(max_length=255, default='')
     state = models.CharField(max_length=255, default='')
