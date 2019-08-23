@@ -43,8 +43,12 @@ class Venue(models.Model):
 
 class Weather(models.Model):
     concert = models.ForeignKey(Event, on_delete=models.CASCADE)
-    latitude = models.FloatField(default=0)
-    longitude = models.FloatField(default=0)
+    description = models.CharField(max_length=255, default='')
+    eventId = models.CharField(max_length=255, default='')
+    weatherId = models.CharField(max_length=255, default='')
+    temphi = models.IntegerField(default='')
+    templow = models.IntegerField(default='')
+    icon = models.URLField(default='')
 
     def __str__(self):
         return f"{self.concert.performer.name} @ {self.concert.venueLoc}"

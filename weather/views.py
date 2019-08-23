@@ -4,7 +4,7 @@ import requests
 import time
 from weather import api
 from weather.helper import baseUrls
-from weather.models import Artist, Event, Venue
+from weather.models import Artist, Event, Venue, Weather
 
 
 def home(request):
@@ -155,7 +155,48 @@ def artistdetails(request, artist_id):
 
 def eventdetails(request, event_id):
     event = Event.objects.get(eventId=event_id)
-    return render(request, 'weather/eventdetails.html', {'event': event})
+    time.sleep(1)
+    if not Venue.objects.filter(VenueId__exact=event.venueId).exists():
+        r = requests.get(f"{baseUrls.TMVEN}"
+                         f"&id={event.venueId}"
+                         f"&apikey={api.tmaccess()}").json()
+        result = r['_embedded']['venues'][0]
+        obj, created = Venue.objects.update_or_create(
+            VenueName=result['name'],
+            VenueId=result['id'],
+            city=result['city']['name'],
+            state=result['state']['name'],
+            address=result['address']['line1'],
+            image='',
+            latitude=result['location']['latitude'],
+            longitude=result['location']['longitude']
+        )
+
+    # request weather data based on venue
+    time.sleep(1)
+    r = requests.get(f"{baseUrls.OWAPI}"
+                     f"&lat={Venue.objects.get(VenueId__exact=event.venueId).latitude}"
+                     f"&lon={Venue.objects.get(VenueId__exact=event.venueId).longitude}"
+                     f"&appid={api.owaccess()}").json()
+
+    if Weather.objects.filter(weatherId=f"{event.eventId}"f"{event.performer.artistId}").exists():
+        Weather.objects.filter(weatherId=f"{event.eventId}"f"{event.performer.artistId}").update(
+            description=r['weather'][0]['description'],
+            temphi=r['main']['temp_max'],
+            templow=r['main']['temp_min'],
+            icon=f"http://openweathermap.org/img/wn/"f"{r['weather'][0]['icon']}"f"@2x.png")
+    else:
+        Weather.objects.create(
+            concert=event,
+            eventId=event.eventId,
+            description=r['weather'][0]['description'],
+            weatherId=f"{event.eventId}"f"{event.performer.artistId}",
+            temphi=r['main']['temp_max'],
+            templow=r['main']['temp_min'],
+            icon=f"http://openweathermap.org/img/wn/"f"{r['weather'][0]['icon']}"f"@2x.png"
+        ).save()
+    return render(request, 'weather/eventdetails.html',
+                  {'event': event, 'weather': Weather.objects.get(eventId=event.eventId)})
 
 
 def venuedetails(request, venue_id):
