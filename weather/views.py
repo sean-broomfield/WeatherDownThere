@@ -60,7 +60,7 @@ def home(request):
                               {'searchResults': r['_embedded']['venues'],
                                'searchType': request.POST['options'],
                                'searchQuery': request.POST['searchQuery']})
-    return render(request, 'weather/home.html')
+    return render(request, 'weather/home.html', {'events': Event.objects.all()[:6]})
 
 
 def search(request):
@@ -144,7 +144,7 @@ def artistdetails(request, artist_id):
                     image=result['images'][0]['url'],
                     latitude=result['location']['latitude'],
                     longitude=result['location']['longitude']
-                ).save()
+                )
         return render(request, 'weather/artistdetails.html',
                       {'artist': newArtist, 'events': Event.objects.filter(performer__artistId__exact=artist_id)})
     else:

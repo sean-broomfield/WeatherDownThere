@@ -10,44 +10,46 @@
             </div>
         </div>
     </div>
-    <div class="container">
-        <div class="card-deck">
-            <div class="card mb-3 border-dark" style="max-width: 540px;">
-                <div class="row no-gutters">
-                    <div class="col-md-4">
-                        <img src="{% static 'pic.png' %}" class="card-img img-thumbnail" alt=""/>
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                                additional content. This content is a little bit longer.</p>
-                            <p class="card-text">
-                                <small class="text-muted">Last updated 3 mins ago</small>
-                            </p>
-                        </div>
-                    </div>
-                    <a href="" class="stretched-link"></a>
-                </div>
-            </div>
-            <div class="card mb-3 border-dark" style="max-width: 540px;">
-                <div class="row no-gutters">
-                    <div class="col-md-4">
-                        <img src="{% static 'pic.png' %}" class="card-img img-thumbnail" alt=""/>
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                                additional content. This content is a little bit longer.</p>
-                            <p class="card-text">
-                                <small class="text-muted">Last updated 3 mins ago</small>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <a href="" class="stretched-link"></a>
-            </div>
+    {% if events %}
+        <div class="container text-center">
+            <h1>Upcoming Events From Current Database</h1>
         </div>
+    {% else %}
+        <div class="container text-center">
+            <h1>No Current Events in Database</h1>
+            <p class="text-muted">Search for an artist or venue to populate database!</p>
+        </div>
+    {% endif %}
+    <br/>
+    <div class="container offset-2">
+        <div class="card-deck mt-4">
+            {% for event in events %}
+                <div class="card border-dark col-auto mb-3" style="min-width: 18rem; max-width: 18rem;">
+                    <div class="row">
+                        <img src="{{ event.performer.image }}"
+                             onerror="this.onerror=null;this.src='{% static 'nim.jpg' %}';" class="card-img-top"
+                             height="200px"
+                             alt="No Image Available">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-center">{{ event.performer.name }} @ {{ event.venueLoc }}</h5>
+                        <div class="row justify-content-center">
+                            <p class="text-muted">
+                                {{ event.date }}
+                            </p>
+                        </div>
+                        <br/> <br/>
+                        <a href="{% url 'eventdetails' event.eventId %}" class="stretched-link"></a>
+                        <div class="card-footer text-muted text-center"
+                             style="position: absolute; bottom: 0; left:0; width:100%;">
+                        </div>
+                    </div>
+                </div>
+                {% if forloop.counter|divisibleby:3 %}
+                    </div>
+                    <div class="card-deck">
+                {% endif %}
+            {% endfor %}
+            </div>
     </div>
 {% endblock %}

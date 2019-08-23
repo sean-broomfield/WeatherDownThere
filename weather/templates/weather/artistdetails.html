@@ -41,14 +41,14 @@
                 </p>
             </div>
             <div class="container col-8 mt-4 text-center">
-                <form action="{% url 'artistdetails' artist.artistId %}" method="POST">
-                    {% csrf_token %}
-                    {% if events|length_is:"0" %}
-                        <button type="button" class="btn btn-primary">Get Events</button>
-                    {% else %}
-                        <button type="button" class="btn btn-primary">Update Events</button>
-                    {% endif %}
-                </form>
+{#                <form action="{% url 'artistdetails' artist.artistId %}" method="POST">#}
+{#                    {% csrf_token %}#}
+{#                    {% if events|length_is:"0" %}#}
+{#                        <button type="button" class="btn btn-primary">Get Events</button>#}
+{#                    {% else %}#}
+{#                        <button type="button" class="btn btn-primary">Update Events</button>#}
+{#                    {% endif %}#}
+{#                </form>#}
             </div>
         </div>
     </div>
