@@ -5,8 +5,8 @@
     <div class="container">
         <div class="row">
             <img src="{{ venue.image }}"
-                 onerror="this.onerror=null;this.src='{% static 'nim.jpg' %}';" class="col-4"
-                 alt="No Image Available">
+                 onerror="this.onerror=null;this.src='{% static 'nim.jpg' %}';" class="col-4 mt-auto"
+                 alt="No Image Available" height="270">
             <div class="container col-8">
                 <h1 class="text-center">Upcoming Events</h1>
                 <br/>
@@ -20,8 +20,8 @@
                             <tbody>
                             {% for event in events %}
                                 <tr>
-                                    <td class="table-primary"><a href="" class="">
-                                        {{ event.performer }} | {{ event.date }}
+                                    <td class="table-primary"><a href="{% url 'eventdetails' event.eventId %}" class="">
+                                        {{ event.performer.name }} | {{ event.date }}
                                     </a></td>
                                     {% empty %}
                                     <td class="table-danger">No Upcoming Events</td>
@@ -34,21 +34,30 @@
             </div>
         </div>
         <div class="row">
-            <div class="container text-center">
-                <h1 class="justify-content-center col-4">{{ venue.VenueName }}</h1>
+            <div class="container text-center col-4">
+                <h1 class="text-center mt-4">{{ venue.VenueName }}</h1>
+                <h3 class="text-muted">
+                    {{ venue.address }}
+                </h3>
+            </div>
+            <div class="container col-8 mt-4 text-center">
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {% if events|length_is:"0" %}
+                        <button type="button" class="btn btn-primary">Get Events</button>
+                    {% else %}
+                        <button type="button" class="btn btn-primary">Update Events</button>
+                    {% endif %}
+                </form>
             </div>
         </div>
         <div class="row">
-            <p class="text-muted text-center col-4">
-                {{ venue.address }}
-            </p>
-        </div>
-        <div class="row">
-            <div class="container text-center">
-                <p class="text-muted justify-content-center col-4">
+            <div class="container text-center ml-auto col-4">
+                <p class="text-muted">
                     {{ venue.city }}, {{ venue.state }}
                 </p>
             </div>
+            <div class="container col-8 mt-4 text-center"></div>
         </div>
     </div>
 {% endblock %}

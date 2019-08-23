@@ -5,8 +5,8 @@
     <div class="container">
         <div class="row">
             <img src="{{ artist.image }}"
-                 onerror="this.onerror=null;this.src='{% static 'nim.jpg' %}';" class="col-4"
-                 alt="No Image Available">
+                 onerror="this.onerror=null;this.src='{% static 'nim.jpg' %}';" class="col-4 mt-auto"
+                 alt="No Image Available" height="270">
             <div class="container col-8">
                 <h1 class="text-center">Upcoming Events</h1>
                 <br/>
@@ -20,7 +20,7 @@
                             <tbody>
                             {% for event in events %}
                                 <tr>
-                                    <td class="table-primary"><a href="" class="">
+                                    <td class="table-primary"><a href="{% url 'eventdetails' event.eventId %}" class="">
                                         {{ event.venueLoc }} | {{ event.date }}
                                     </a></td>
                                     {% empty %}
@@ -31,28 +31,24 @@
                         </table>
                     </div>
                 </div>
-                <br/>
-                <div class="container text-center">
-                    <form action="{% url 'artistdetails' artist.artistId %}" method="POST">
-                        {% if events|length_is:"0" %}
-                            <button type="button" class="btn btn-primary">Get Events</button>
-                        {% else %}
-                            <button type="button" class="btn btn-primary">Update Events</button>
-                        {% endif %}
-                    </form>
-                </div>
             </div>
         </div>
         <div class="row">
-            <div class="container text-center">
-                <h1 class="justify-content-center col-4">{{ artist.name }}</h1>
-            </div>
-        </div>
-        <div class="row">
-            <div class="container">
-                <p class="text-muted text-center col-4">
+            <div class="container text-center col-4">
+                <h1 class="text-center mt-4">{{ artist.name }}</h1>
+                <p class="text-muted">
                     {{ artist.genre }}
                 </p>
+            </div>
+            <div class="container col-8 mt-4 text-center">
+                <form action="{% url 'artistdetails' artist.artistId %}" method="POST">
+                    {% csrf_token %}
+                    {% if events|length_is:"0" %}
+                        <button type="button" class="btn btn-primary">Get Events</button>
+                    {% else %}
+                        <button type="button" class="btn btn-primary">Update Events</button>
+                    {% endif %}
+                </form>
             </div>
         </div>
     </div>
