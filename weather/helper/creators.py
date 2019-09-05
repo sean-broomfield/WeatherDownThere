@@ -9,19 +9,23 @@ import time
 
 def search_artist_by_keyword(artist_query):
     time.sleep(1)
-    return requests.get(f"{baseUrls.TMART}"
+    return requests.get(f"{baseUrls.TM_ARTIST}"
                         f"&keyword={artist_query}"
                         f"&apikey={api.tmaccess()}").json()
 
 
 def search_artist_by_id(art_id):
     time.sleep(1)
-    return requests.get(f"{baseUrls.TMART}"
+    return requests.get(f"{baseUrls.TM_ARTIST}"
                         f"&id={art_id}"
                         f"&apikey={api.tmaccess()}").json()
 
 
 def create_artist(result):
+    print(f"Create! {result['name']}"
+          f"{result['id']}"
+          f"{result['classifications'][0]['genre']['name']}"
+          f"{result['images'][0]['url']}")
     obj, created = Artist.objects.get_or_create(
         name=result['name'],
         artistId=result['id'],
@@ -35,14 +39,14 @@ def create_artist(result):
 
 def search_venue_by_keyword(venue_query):
     time.sleep(1)
-    return requests.get(f"{baseUrls.TMVEN}"
+    return requests.get(f"{baseUrls.TM_VENUE}"
                         f"&keyword={venue_query}"
                         f"&apikey={api.tmaccess()}").json()
 
 
 def search_venue_by_id(venue_id):
     time.sleep(1)
-    return requests.get(f"{baseUrls.TMVEN}"
+    return requests.get(f"{baseUrls.TM_VENUE}"
                         f"&id={venue_id}"
                         f"&apikey={api.tmaccess()}").json()
 
@@ -62,11 +66,19 @@ def create_venue(result):
     return obj, created
 
 
+def search_venue_from_details(venue_id):
+    time.sleep(1)
+    return requests.get(f"{baseUrls.NEW_VEN}"
+                        f"{venue_id}?locale=en-us"
+                        f"&countrycode=us"
+                        f"&apikey={api.tmaccess()}").json()
+
+
 ######### Event Functions ########### ###################################### ######################################
 
 def search_event_by_artist(artist_id, size):
     time.sleep(1)
-    return requests.get(f"{baseUrls.TMEVENT}"
+    return requests.get(f"{baseUrls.TM_EVENT}"
                         f"{artist_id}"
                         f"&size={size}"
                         f"&apikey={api.tmaccess()}").json()
@@ -74,13 +86,15 @@ def search_event_by_artist(artist_id, size):
 
 def search_event_by_venue(venue_id):
     time.sleep(1)
-    return requests.get(f"{baseUrls.TMEVENT2}"
+    return requests.get(f"{baseUrls.TM_EVENT_2}"
                         f"&size=5"
                         f"&venueId={venue_id}"
                         f"&apikey={api.tmaccess()}").json()
 
 
 def create_event(result, artist_id):
+    print("Creating Event!")
+    print(f"Artist id is {artist_id}")
     obj, created = Event.objects.get_or_create(
         performer=Artist.objects.get(artistId=artist_id),
         venueLoc=result['_embedded']['venues'][0]['name'],
@@ -90,6 +104,7 @@ def create_event(result, artist_id):
         url=result['url'],
         # seatMap=result['seatmap']['staticUrl']
     )
+    print("Done Creating!")
     return obj, created
 
 
@@ -97,7 +112,7 @@ def create_event(result, artist_id):
 
 def search_weather_by_coordinates(venue):
     time.sleep(1)
-    return requests.get(f"{baseUrls.OWAPI}"
+    return requests.get(f"{baseUrls.OW_API}"
                         f"&lat={venue.latitude}"
                         f"&lon={venue.longitude}"
                         f"&appid={api.owaccess()}").json()

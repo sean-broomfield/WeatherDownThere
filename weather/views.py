@@ -18,9 +18,7 @@ def home(request):
             if r['page']['totalElements'] == 0:
                 return render(request, 'weather/home.html', {'error': 'No search results found!'})
             elif r['page']['totalElements'] == 1:
-                # Create artist!
                 artist, artist_created = creators.create_artist(r['_embedded']['attractions'][0])
-                # Grab Events and create venues!
                 search_result = creators.search_event_by_artist(artist.artistId, 5)
                 if search_result['page']['totalElements'] > 0:
                     for result in search_result['_embedded']['events']:
@@ -41,7 +39,13 @@ def home(request):
                 return render(request, 'weather/home.html', {'error': 'No search results found!'})
             elif r['page']['totalElements'] == 1:
                 venue, venue_created = creators.create_venue(r['_embedded']['venues'][0])
-                return render(request, 'weather/venuedetails.html', {'venue': Venue.objects.get(VenueId=venue.VenueId)})
+                search_result = creators.search_event_by_venue(venue.VenueId)
+                if search_result['page']['totalElements'] > 0:
+                    for result in search_result['_embedded']['events']:
+                        artist, artist_created = creators.create_artist(result['_embedded']['attractions'][0])
+                        event, event_created = creators.create_event(result, artist.artistId)
+                return render(request, 'weather/venuedetails.html',
+                              {'venue': venue, 'events': Event.objects.filter(venueId__exact=venue.VenueId)})
             else:
                 return render(request, 'weather/search.html',
                               {'searchResults': r['_embedded']['venues'],
@@ -67,6 +71,7 @@ def artistdetails(request, artist_id):
             if r['page']['totalElements'] > 0:
                 for result in r['_embedded']['events']:
                     event, event_created = creators.create_event(result, artist_id)
+                    venue, venue_created = creators.create_venue(result['_embedded']['venues'][0])
             return render(request, 'weather/artistdetails.html', {'artist': Artist.objects.get(artistId=artist_id),
                                                                   'events': Event.objects.filter(
                                                                       performer__artistId__exact=artist_id)})
@@ -78,23 +83,17 @@ def artistdetails(request, artist_id):
         r = creators.search_event_by_artist(artist_id, 5 - num)
         if r['page']['totalElements'] > 0:
             for result in r['_embedded']['events']:
-                creators.create_event(result, artist_id)
+                event, event_created = creators.create_event(result, artist_id)
                 venue, venue_created = creators.create_venue(result['_embedded']['venues'][0])
         return render(request, 'weather/artistdetails.html',
                       {'artist': new_artist, 'events': Event.objects.filter(performer__artistId__exact=artist_id)})
-    else:
-        return render(request, 'weather/artistdetails.html', {'artist': Artist.objects.get(artistId=artist_id),
-                                                              'events': Event.objects.filter(
-                                                                  performer__artistId=artist_id)})
 
 
 def eventdetails(request, event_id):
     event = Event.objects.get(eventId=event_id)
-
     # Venue doesn't exist in database so search for and create the data.
     if not Venue.objects.filter(VenueId__exact=event.venueId).exists():
         r = creators.search_venue_by_id(event.venueId)
-        print(r)
         venue, venue_created = creators.create_venue(r['_embedded']['venues'][0])
 
     # Venue exists, so request weather data based on venue. #
@@ -112,8 +111,8 @@ def venuedetails(request, venue_id):
                        'venue': Venue.objects.get(VenueId__exact=venue_id)})
 
     # Venue does NOT exist in DB
-    r = creators.search_venue_by_id(venue_id)
-    venue, venue_created = creators.create_venue(r['_embedded']['venues'][0])
+    r = creators.search_venue_from_details(venue_id)
+    venue, venue_created = creators.create_venue(r)
 
     # Get venue events
     r = creators.search_event_by_venue(venue.VenueId)
@@ -122,4 +121,4 @@ def venuedetails(request, venue_id):
             artist, artist_created = creators.create_artist(result['_embedded']['attractions'][0])
             event, event_created = creators.create_event(result, artist.artistId)
     return render(request, 'weather/venuedetails.html', {'events': Event.objects.filter(venueId=venue.VenueId),
-                                                         'venue': Venue.objects.get(venue)})
+                                                         'venue': venue})
